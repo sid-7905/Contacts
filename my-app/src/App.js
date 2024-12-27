@@ -1,13 +1,18 @@
+import React, { useState } from "react";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import Contacts from "./components/contact_list";
 import Add_contact from "./components/add_contact";
-import "./App.css";
-import "@fortawesome/fontawesome-free/css/all.min.css";
-import React, { useState } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import SignUp from "./components/signup";
 import Login from "./components/login";
 import Profile from "./components/profile";
 import Home from "./components/home";
+import "./App.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import EditForm from "./components/edit_contact";
+
+function checkLogin() {
+  return localStorage.getItem("token") ? true : false;
+}
 
 function App() {
   const [contacts, setContacts] = useState([]);
@@ -15,33 +20,34 @@ function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Home />
+      element: checkLogin() ? <Navigate to="/mycontacts" /> : <Home />,
     },
     {
       path: "/mycontacts",
-      element: <Contacts
-        contacts={contacts}
-        setContacts={setContacts}
-    />,
+      element: checkLogin() ? <Contacts contacts={contacts} setContacts={setContacts} /> : <Navigate to="/" />
     },
     {
       path: "/addcontact",
-      element: <Add_contact contacts={contacts}/>,
+      element:  checkLogin() ? <Add_contact contacts={contacts} /> : <Navigate to="/" />
+      
+    },
+    {
+      path: "/editcontact/:id",
+      element: checkLogin() ? <EditForm contacts={contacts} setContacts={setContacts}  /> : <Navigate to="/" />
     },
     {
       path: "/register",
-      element: <SignUp />,
+      element:  checkLogin() ? <Navigate to="/mycontacts" /> : <SignUp />
     },
     {
       path: "/login",
-      element : <Login />
-    },
-    {
-      path: "/logout",
+      element: checkLogin() ? <Navigate to="/mycontacts" /> : <Login />
     },
     {
       path: "/profile",
-      element: <Profile />
+      element: (
+        checkLogin() ? <Profile /> : <Navigate to="/" />
+      ),
     }
   ]);
 

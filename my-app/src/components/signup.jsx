@@ -49,9 +49,10 @@ const SignUp = () => {
 
     try {
       // console.log(formData);  
-      axios.post("http://localhost:5000/api/user/register", formData,{
+      const response = await axios.post("http://localhost:5000/api/user/register", formData,{
         withCredentials: true, // Include cookies and credentials
       });
+      localStorage.setItem("token", response.data.token);
       // console.log(response);
       alert("user added successfully"); // Notify user of success
       setFormData({
@@ -66,6 +67,7 @@ const SignUp = () => {
       setError("");
       window.location.replace("http://localhost:3000/mycontacts");
     } catch (err) {
+      console.log(err.response);
       setError(err.response.data.message); 
       console.error(err);
     }

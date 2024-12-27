@@ -1,13 +1,42 @@
-import React, { useState } from "react";
-import { Link, redirect } from "react-router-dom";
+import React from "react";
+import Navbar from "./navbar";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 const Profile = () => {
+  const [userData, setUserData] = useState({});
 
-  return(
-    <div className="flex items-center justify-center h-screen">
-      <div className="p-4 flex flex-col items-center bg-[#2d2a2a] shadow-2xl w-full h-full">
-        <Link to="/" className="text-zinc-400 m-4 border p-2 rounded-lg bg-slate-800">Home</Link>
+  useEffect(() => {
+    // Fetch data from the backend
+    axios
+      .get("http://localhost:5000/api/user/profile", {
+        withCredentials: true, // Include cookies and credentials
+      }) // Replace with your backend URL
+      .then((response) => {
+        console.log(response.data);
+        setUserData(response.data); // Update state with fetched data
+      })
+      .catch((error) => {
+        console.error("Error fetching contacts:", error);
+      });
+  }, []);
+
+  return (
+    <div>
+      <Navbar />
+      <div className="flex items-center justify-center h-full min-h-screen bg-slate-900">
+        <div className="p-8 rounded-lg gap-4 flex flex-col items-center bg-[#2d2a2a] shadow-2xl justify-center h-full">
+          <img
+            src={userData.image}
+            alt="Contact"
+            className="w-24 h-24 object-cover rounded-full mx-auto"
+          />
+          <h3 className="text-lg font-semibold text-white  mx-auto">
+            {userData.name}
+          </h3>
+          <p className="text-gray-300">Phone: {userData.phone}</p>
+          <p className="text-gray-400">Email: {userData.email}</p>
+        </div>
       </div>
     </div>
   );

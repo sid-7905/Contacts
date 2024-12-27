@@ -45,19 +45,19 @@ router.post("/register", async (req, res) => {
         password: hash,
       });
 
-      let token = jwt.sign({email: email, userID: user._id}, "secretkey");
-      // console.log(token);
-      res.cookie("token", token,);
-
       try {
         const savedUser = await user.save();
-        // console.log(savedUser);
+        // console.log(savedUser);  
+        let token = jwt.sign({email: email, userID: user._id}, "secretkey");
+      console.log(token);
+        res.cookie("token", token,);
+
         res.json({
           status: "success",
           message: "Login successful",
           token: token,
           user: {
-            id: user.id,
+            id: user._id,
             name: user.name,
             email: user.email,
           },
@@ -92,43 +92,60 @@ router.post("/login", async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: "Invalid Password" });
 
     let token = jwt.sign({email: email, userID: user._id}, "secretkey");
-    // console.log(token);
+    console.log(token);
     res.cookie("token", token);
-
-    res.json({
+    const data = {
       status: "success",
       message: "Login successful",
       token: token,
       user: {
-        id: user.id,
+        id: user._id,
         name: user.name,
         email: user.email,
       },
-    });
+    };
+    console.log(data);
+    res.json(data);
   });
 }
 );
 
+// Get user profile
+router.get('/profile', authenticateToken, (req, res) => {
+  const { userID } = req.user;
+  console.log(userID);
+  UserModel.findById(userID)
+    .then((user) => {
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      res.json(user);
+    })
+    .catch((error) => {
+      res.status(500).json({ error: 'Failed to fetch user' });
+    });
+});
 
-//logout a user
+// logout a user
 router.get("/logout", (req, res) => {
   res.cookie("token", "");
   res.json({ message: "Logged out successfully" });
 });
 
-
 //middleware to authenticate token
 function authenticateToken(req, res, next) {
-  // console.log(req.cookies);
+  console.log(req.body);
   let token = req.cookies.token;
-  // console.log(token);
+  console.log(token);
 
   if (!token) return res.status(401).json({ error: 'Access token missing' });
 
-    const data = jwt.verify(token, "secretkey");
+  jwt.verify(token, "secretkey", (err, data) => {
+    if (err) return res.status(403).json({ error: 'Invalid or expired token' });
     req.user = data; // Attach data to request
     // console.log(data);
     next();
+  });
 }
 
 // Get all contacts
@@ -149,9 +166,10 @@ router.get("/contacts" ,authenticateToken,  async (req, res) => {
 
 // Add a new contact
 router.post("/contacts", authenticateToken, async (req, res) => {
+  // console.log(req.body);
   const { image, name, phone, altNumber, email, address } = req.body;
   const userID = req.user.userID;
-  console.log(userID);
+  // console.log(userID);
 
   const contact = new ContactModel({
     image,
@@ -173,19 +191,29 @@ router.post("/contacts", authenticateToken, async (req, res) => {
     const savedContact = await contact.save();
     res.status(201).json(savedContact);
   } catch (err) {
+    console.log(err.message);
     res.status(400).json({ message: err.message });
   }
 });
 
-// Delete a contact
-router.delete("/contacts/:id", async (req, res) => {
-  try {
-    await ContactModel.findByIdAndDelete(req.params.id);
-    res.json({ message: "Contact deleted" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+router.delete("/contacts/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const userID = req.user.userID;
+
+  const contact = await ContactModel.findByIdAndDelete(id);
+
+  if (!contact) {
+    return res.status(404).json({ error: "Contact not found" });
   }
+
+  // Remove contact ID from user's contacts array
+  await UserModel.findByIdAndUpdate(userID, {
+    $pull: { contacts: id },
+  });
+
+  res.status(200).json({ message: "Contact deleted successfully!" });
 });
+
  
 // PUT API Route to update a contact
 router.put("/contacts/:id", async (req, res) => {

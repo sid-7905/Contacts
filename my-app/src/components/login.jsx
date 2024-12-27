@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 const Login = () => {
@@ -24,14 +24,16 @@ const Login = () => {
       const response = await axios.post("http://localhost:5000/api/user/login", formData,{
         withCredentials: true, // Include cookies and credentials
       });
-      console.log(response);
-      // alert("User logged in successfully"); // Notify user of success
+      console.log(response.data.token);
+      localStorage.setItem('token', response.data.token);
+
+      alert("User logged in successfully"); // Notify user of success
       setFormData({
         email: "",
         password: "",
       });
       setError("");
-      redirect: window.location.replace("http://localhost:3000/mycontacts");
+      window.location.replace("http://localhost:3000/mycontacts");
     }
     catch (err) {
       setError(err.response.data.message);
