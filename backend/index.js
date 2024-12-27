@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
+const path = require("path");
 
 // Middleware
 app.use(cors({
@@ -16,6 +17,9 @@ mongoose
 .connect("mongodb://localhost:27017/ContactApp")
 .then(() => console.log("MongoDB connected"))
 .catch((err) => console.error("Error connecting to MongoDB:", err));
+
+// Serve static files
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.get("/", (req, res) => res.send("Server is running!"));

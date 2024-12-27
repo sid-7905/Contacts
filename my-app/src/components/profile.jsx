@@ -9,11 +9,11 @@ const Profile = () => {
   useEffect(() => {
     // Fetch data from the backend
     axios
-      .get("http://localhost:5000/api/user/profile", {
+      .get("/api/user/profile", {
         withCredentials: true, // Include cookies and credentials
       }) // Replace with your backend URL
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
         setUserData(response.data); // Update state with fetched data
       })
       .catch((error) => {
@@ -27,7 +27,7 @@ const Profile = () => {
       <div className="flex items-center justify-center h-full min-h-screen bg-slate-900">
         <div className="p-8 rounded-lg gap-4 flex flex-col items-center bg-[#2d2a2a] shadow-2xl justify-center h-full">
           <img
-            src={userData.image}
+            src={userData.image ? `/public/images/uploads/${userData.image}` : '/public/images/uploads/default.jpg'}
             alt="Contact"
             className="w-24 h-24 object-cover rounded-full mx-auto"
           />

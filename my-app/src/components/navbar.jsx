@@ -9,11 +9,11 @@ import axios from "axios";
 
 const handleLogout = async () => {
   try {
-    await axios.get("http://localhost:5000/api/user/logout", {
+    await axios.get("/api/user/logout", {
       withCredentials: true, // Include cookies and credentials
     });
     localStorage.removeItem("token");
-    window.location.replace("http://localhost:3000/login");
+    window.location.replace("/login");
   } catch (error) {
     console.error("Error logging out:", error);
   }

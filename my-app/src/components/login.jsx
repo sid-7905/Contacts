@@ -21,22 +21,22 @@ const Login = () => {
 
     try {
       console.log(formData);
-      const response = await axios.post("http://localhost:5000/api/user/login", formData,{
+      const response = await axios.post("/api/user/login", formData,{
         withCredentials: true, // Include cookies and credentials
       });
       console.log(response.data.token);
       localStorage.setItem('token', response.data.token);
 
-      alert("User logged in successfully"); // Notify user of success
+      // alert("User logged in successfully"); // Notify user of success
       setFormData({
         email: "",
         password: "",
       });
       setError("");
-      window.location.replace("http://localhost:3000/mycontacts");
+      window.location.replace("/mycontacts");
     }
     catch (err) {
-      setError(err.response.data.message);
+      setError("Failed to login. Please try again.");
       console.error(err);
     }
   }
@@ -48,9 +48,10 @@ const Login = () => {
 
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="p-4 flex flex-col items-center bg-[#2d2a2a] shadow-2xl w-full h-full">
-        <form className="flex flex-col items-center gap-4 p-4 bg-[#171717] rounded-2xl w-full">
+    <div className="flex flex-col items-center justify-center h-full min-h-screen bg-slate-900">
+      <Link to="/" className="text-zinc-400 m-4 w-20 text-center border p-2 rounded-lg absolute top-4 left-4 bg-slate-800">Home</Link>
+      <div className="p-4 flex flex-col items-center w-full md:w-1/2 h-full">
+        <form className="flex flex-col items-center gap-4 p-4 bg-[#171717] shadow-lg rounded-2xl w-full">
           <div>
             {error && (
               <div className="bg-red-500 text-white p-4 rounded-lg text-center mt-4">
@@ -100,7 +101,6 @@ const Login = () => {
           </div>
             <Link to="/" className="text-zinc-500">Forgot Password</Link>
         </form>
-        <Link to="/" className="text-zinc-400 m-4 border p-2 rounded-lg bg-slate-800">Home</Link>
       </div>
     </div>
   );

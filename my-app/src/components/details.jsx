@@ -8,7 +8,7 @@ export default function Details({ contact, open, setOpen}) {
       <div className="fixed inset-0 bg-black bg-opacity-50  backdrop-blur-sm flex items-center justify-center p-4 w-full">
         <Dialog.Panel className="bg-zinc-900 rounded-lg p-6 flex flex-col gap-3">
           <img
-            src={contact.image}
+            src={contact.image ? `/public/images/uploads/${contact.image}` : '/public/images/uploads/default.jpg'}
             alt="Contact"
             className="w-24 h-24 object-cover rounded-full mx-auto"
           />

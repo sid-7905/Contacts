@@ -2,155 +2,177 @@ import { useState } from "react";
 import axios from "axios";
 import { NavLink } from "react-router-dom";
 
-export default function EditForm({
-  contacts,
-  setContacts,
-}) {
+export default function EditForm({contacts}) {
 
   const id = window.location.pathname.split("/")[2];
   // console.log(id);
   const contact = contacts.find((c) => c._id === id);
   // console.log(contact);
 
-  const defaultImage =
-  "https://static.vecteezy.com/system/resources/previews/021/548/095/original/default-profile-picture-avatar-user-avatar-icon-person-icon-head-icon-profile-picture-icons-default-anonymous-user-male-and-female-businessman-photo-placeholder-social-network-avatar-portrait-free-vector.jpg";
+  const [previewImage, setPreviewImage] = useState(`/public/images/uploads/${contact.image}`);
 
-  const [image, setImage] = useState(contact.image);
-  const [name, setName] = useState(contact.name);
-  const [phone, setPhone] = useState(contact.phone);
-  const [email, setEmail] = useState(contact.email);
-  const [address, setAddress] = useState(contact.address);
-  const [altNumber, setAltNumber] = useState(contact.altNumber);
+  const [formData, setFormData] = useState({
+    file: contact.image,
+    name: contact.name,
+    phone: contact.phone,
+    altNumber: contact.altNumber,
+    email: contact.email,
+    address: contact.address,
+  });
 
+  // Handle file input change
   const handleImageChange = (e) => {
     const file = e.target.files[0]; // Get the selected file
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result; // Get the data URL of the image
-        setImage(result); // Update the image
+        setPreviewImage(result); // Update the previewImage state
+        setFormData((prevData) => ({ ...prevData, file: file })); // Update formData with the image
       };
       reader.readAsDataURL(file); // Read the file as a data URL
     }
   };
 
+  const [error, setError] = useState("");
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault();
+
+    if (!formData.name || !formData.phone || !formData.email) {
+      setError("Please fill in all required fields (Name, Phone, Email).");
+      console.log({ error });
+      return;
+    }
 
     try {
-      // Call the backend API to update the contact
-      // console.log(contact._id);
-      const response = await axios.put(
-        `http://localhost:5000/api/user/contacts/${contact._id}`,
-        {
-          image,
-          name,
-          phone,
-          altNumber,
-          email,
-          address,
-        }
-      );
 
-      // console.log(response.data);
-      // Update the contacts in the frontend
-      const updatedContact = response.data.updatedContact;
-      const updatedContacts = contacts.map((c) =>
-        c._id === updatedContact._id ? updatedContact : c
+      const formdata = new FormData();
+      if (formData.file instanceof File) {
+        // Append the file only if it's an actual file
+        formdata.append("file", formData.file);
+      }
+      formdata.append("name", formData.name);
+      formdata.append("phone", formData.phone);
+      formdata.append("altNumber", formData.altNumber);
+      formdata.append("email", formData.email);
+      formdata.append("address", formData.address);
+      
+
+      console.log(formData);
+      const response = await axios.put(
+       `/api/user/contacts/${id}`,
+        formdata,
+        {
+          withCredentials: true, // Include cookies and credentials
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+          
       );
-      setContacts(updatedContacts);
-      // console.log("Contact updated successfully:", updatedContact);
-      // alert("Contact updated successfully!");
+      console.log(response.data);
+      // alert(response.data.message); // Notify user of success
+      setError("");
       window.location.href = "/mycontacts";
 
-
-    } catch (error) {
-      console.error("Error updating contact:", error);
-      alert("Failed to update contact. Please try again.");
+    } catch (err) {
+      setError("Failed to save contact. Please try again.");
+      console.error(err);
     }
   };
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center bg-slate-900  z-10">
-      <div className="sm:p-8 flex flex-col items-center gap-4 sm:bg-[#2d2a2a] shadow-2xl w-full max-w-md">
+      <div className="sm:p-8 flex flex-col items-center gap-4 shadow-2xl w-full md:w-1/2 lg:w-2/5">
         <h2 className="text-lg text-white font-bold mb-4">Edit Contact</h2>
         <form
+          method="put"
           onSubmit={handleSubmit}
           className="flex flex-col items-center gap-4 p-4 bg-[#171717] rounded-2xl w-full"
         >
           <div className="flex items-end">
-            {image !== defaultImage && (
-              <div>
-                <label
-                  htmlFor="file-input"
-                  onClick={() => setImage(defaultImage)
-                  }
-                >
-                  <i className="fas fa-x text-[#64ffda] cursor-pointer"></i>
-                </label>
-              </div>
-            )}
-            <img
-              src={image}
-              alt="Profile Preview"
-              style={{
-                width: "150px",
-                height: "150px",
-                borderRadius: "50%",
-              }}
-            />
-            <div className="relative flex items-center justify-center gap-2 p-3 mt-4 bg-[#1d2526] rounded-xl shadow-xl w-10">
-              <input
-                className="fas fa-image bg-transparent border-none outline-none w-full text-[#2fb1bc]"
-                type="file"
-                capture="user"
-                accept="image/*"
-                onChange={handleImageChange}
+              {previewImage!==`/public/images/uploads/default.jpg`  && (
+                <div>
+                  <label htmlFor="file-input" onClick={() => {
+                    setPreviewImage(`/public/images/uploads/default.jpg`);
+                    setFormData((prevData) => ({ ...prevData, file: "default.jpg" }));
+                  }}>
+                    <i className="fas fa-x text-[#64ffda] cursor-pointer"></i>
+                  </label>
+                </div>
+              )}
+              <img
+                src={previewImage}
+                alt="Profile Preview"
+                style={{
+                  width: "150px",
+                  height: "150px",
+                  borderRadius: "50%",
+                }}
               />
-            </div>
+              <div className="relative flex items-center justify-center gap-2 p-3 mt-4 bg-[#1d2526] rounded-xl shadow-xl w-10">
+                <input
+                  className="fas fa-image bg-transparent border-none outline-none w-full text-[#2fb1bc]"
+                  type="file"
+                  capture="user"
+                  accept="image/*"
+                  name="file"
+                  onChange = {handleImageChange}
+                />
+              </div>
           </div>
           <div className="flex items-center justify-center p-4 bg-[#1b1b1b] rounded-xl shadow-xl w-full">
             <i className="fas fa-user text-[#64ffda]"></i>
             <input
+              name="name"
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={formData.name}
+              onChange={handleChange}
               className="bg-transparent border-none outline-none w-full text-[#ccd6f6] pl-4"
             />
           </div>
           <div className="flex items-center justify-center  p-4 bg-[#1b1b1b] rounded-xl shadow-xl  w-full">
             <i className="fas fa-phone text-[#64ffda]"></i>
             <input
+              name="phone"
               type="number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={formData.phone}
+              onChange={handleChange}
               className="bg-transparent border-none outline-none w-full text-[#ccd6f6] pl-4"
             />
           </div>
           <div className="flex items-center justify-center p-4 bg-[#1b1b1b] rounded-xl shadow-xl  w-full">
             <i className="fas fa-phone text-[#64ffda]"></i>
             <input
+              name="altNumber"
               type="number"
-              value={altNumber}
-              onChange={(e) => setAltNumber(e.target.value)}
+              value={formData.altNumber}
+              onChange={handleChange}
               className="bg-transparent border-none outline-none w-full text-[#ccd6f6] pl-4"
             />
           </div>
           <div className="flex items-center justify-center p-4 bg-[#1b1b1b] rounded-xl shadow-xl w-full">
             <i className="fas fa-message text-[#64ffda]"></i>
             <input
+              name="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={handleChange}
               className="bg-transparent border-none outline-none w-full text-[#ccd6f6] pl-4"
             />
           </div>
           <div className="flex items-center justify-center gap-2 p-4 bg-[#1b1b1b] rounded-xl shadow-xl w-full">
             <i className="fas fa-home text-[#64ffda]"></i>
             <input
+              name="address"
               type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              value={formData.address}
+              onChange={handleChange}
               className="bg-transparent border-none outline-none w-full text-[#ccd6f6] pl-4"
             />
           </div>
@@ -169,6 +191,13 @@ export default function EditForm({
               Save
             </button>
           </div>
+          <div>
+              {error && (
+                <div className="bg-red-500 text-white p-4 rounded-lg text-center mt-4">
+                  {error}
+                </div>
+              )}
+            </div>
         </form>
       </div>
     </div>

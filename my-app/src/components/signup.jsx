@@ -4,10 +4,8 @@ import axios from "axios";
 
 const SignUp = () => {
 
-  const defaultImage =
-    "https://static.vecteezy.com/system/resources/previews/021/548/095/original/default-profile-picture-avatar-user-avatar-icon-person-icon-head-icon-profile-picture-icons-default-anonymous-user-male-and-female-businessman-photo-placeholder-social-network-avatar-portrait-free-vector.jpg";
-  // const [profileImage, setProfileImage] = useState(null); // To store the selected file
-  const [preview, setPreview] = useState(defaultImage); // For image preview
+  
+  const [previewImage, setPreviewImage] = useState(null);
 
   // Handle file input change
   const handleImageChange = (e) => {
@@ -16,8 +14,8 @@ const SignUp = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result; // Get the data URL of the image
-        setPreview(result); // Update the preview
-        setFormData((prevData) => ({ ...prevData, image: result })); // Update formData with the image
+        setPreviewImage(result); // Update the previewImage state
+        setFormData((prevData) => ({ ...prevData, file: file })); // Update formData with the image
       };
       reader.readAsDataURL(file); // Read the file as a data URL
     }
@@ -25,7 +23,7 @@ const SignUp = () => {
 
 
   const [formData, setFormData] = useState({
-    image: defaultImage,
+    file: '',
     name: "",
     email: "",
     phone: "",
@@ -47,25 +45,34 @@ const SignUp = () => {
       return;
     }
 
+    const formdata = new FormData();
+      formdata.append("file", formData.file);
+      formdata.append("name", formData.name);
+      formdata.append("phone", formData.phone);
+      formdata.append("email", formData.email);
+      formdata.append("password", formData.password);
+
+
     try {
-      // console.log(formData);  
-      const response = await axios.post("http://localhost:5000/api/user/register", formData,{
+      console.log(formData);  
+      const response = await axios.post("/api/user/register", formdata,{
         withCredentials: true, // Include cookies and credentials
       });
       localStorage.setItem("token", response.data.token);
       // console.log(response);
-      alert("user added successfully"); // Notify user of success
+      // alert("user added successfully"); // Notify user of success
       setFormData({
-        image: defaultImage,
+        file: "",
         name: "",
         email: "",
         phone: "",
         password: "",
         confirmPassword: "",
       });
-      setPreview(defaultImage);
+      
+      setPreviewImage(null);
       setError("");
-      window.location.replace("http://localhost:3000/mycontacts");
+      window.location.replace("/mycontacts");
     } catch (err) {
       console.log(err.response);
       setError(err.response.data.message); 
@@ -80,11 +87,12 @@ const SignUp = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen max-h-full">
-      <div className="p-2 flex flex-col items-center bg-[#2d2a2a] shadow-2xl w-full h-full">
+    <div className="flex items-center justify-center h-full min-h-screen bg-slate-900">
+      <Link to="/" className="text-zinc-400 m-4 w-20 text-center border p-2 rounded-lg absolute top-4 left-4 bg-slate-800">Home</Link>
+      <div className="p-2 flex flex-col items-center w-full h-full">
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col items-center gap-4 p-2 bg-[#171717] rounded-2xl w-full"
+          className="flex flex-col items-center gap-4 p-2 bg-[#171717] rounded-2xl w-full md:w-1/2"
         >
           <div>
             {error && (
@@ -95,25 +103,34 @@ const SignUp = () => {
           </div>
           <p className="text-center text-[#64ffda] text-3xl">Register</p>
 
-          {/* Image Preview */}
-          {preview && (
-            <div className="flex items-end">
+          <div className="flex items-end">
+              {previewImage  && (
+                <div>
+                  <label htmlFor="file-input" onClick={() => setPreviewImage(null)}>
+                    <i className="fas fa-x text-[#64ffda] cursor-pointer"></i>
+                  </label>
+                </div>
+              )}
               <img
-                src={preview}
+                src={previewImage ? previewImage : '/public/images/uploads/default.jpg'}
                 alt="Profile Preview"
-                style={{ width: "150px", height: "150px", borderRadius: "50%" }}
+                style={{
+                  width: "150px",
+                  height: "150px",
+                  borderRadius: "50%",
+                }}
               />
-              <div className="relative flex items-center justify-center gap-2 p-3 bg-[#1d2526] rounded-xl shadow-xl w-10">
+              <div className="relative flex items-center justify-center gap-2 p-3 mt-4 bg-[#1d2526] rounded-xl shadow-xl w-10">
                 <input
                   className="fas fa-image bg-transparent border-none outline-none w-full text-[#2fb1bc]"
                   type="file"
                   capture="user"
                   accept="image/*"
-                  onChange={handleImageChange}
+                  name="file"
+                  onChange = {handleImageChange}
                 />
               </div>
             </div>
-          )}
           <div className="flex items-center justify-center gap-2 p-4 bg-[#1b1b1b] rounded-xl shadow-xl w-full max-w-md">
             <i className="fas fa-user text-[#64ffda]"></i>
             <input
@@ -188,7 +205,6 @@ const SignUp = () => {
             </div>
           </div>
         </form>
-        <Link to="/" className="text-zinc-400 m-4 border p-2 rounded-lg bg-slate-800">Home</Link>
       </div>
     </div>
   );

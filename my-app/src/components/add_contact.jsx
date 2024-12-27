@@ -1,20 +1,18 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import Navbar from "./navbar";
 
-const defaultImage =
-  "https://static.vecteezy.com/system/resources/previews/021/548/095/original/default-profile-picture-avatar-user-avatar-icon-person-icon-head-icon-profile-picture-icons-default-anonymous-user-male-and-female-businessman-photo-placeholder-social-network-avatar-portrait-free-vector.jpg";
-
 const Form = () => {
   const [formData, setFormData] = useState({
-    image: defaultImage,
+    file: "",
     name: "",
     phone: "",
     altNumber: "",
     email: "",
     address: "",
   });
+
+  const [previewImage, setPreviewImage] = useState(null);
 
   // Handle file input change
   const handleImageChange = (e) => {
@@ -23,7 +21,8 @@ const Form = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result; // Get the data URL of the image
-        setFormData((prevData) => ({ ...prevData, image: result })); // Update formData with the image
+        setPreviewImage(result); // Update the previewImage state
+        setFormData((prevData) => ({ ...prevData, file: file })); // Update formData with the image
       };
       reader.readAsDataURL(file); // Read the file as a data URL
     }
@@ -45,22 +44,35 @@ const Form = () => {
     }
 
     try {
+
+      const formdata = new FormData();
+      formdata.append("file", formData.file);
+      formdata.append("name", formData.name);
+      formdata.append("phone", formData.phone);
+      formdata.append("altNumber", formData.altNumber);
+      formdata.append("email", formData.email);
+      formdata.append("address", formData.address);
+      
+
+      console.log(formData);
       const response = await axios.post(
-        "http://localhost:5000/api/user/contacts",
-        formData,
+        "/api/user/contacts",
+        formdata,
         {
           withCredentials: true, // Include cookies and credentials
         }
       );
-      alert(response.data.message); // Notify user of success
+      console.log(response.data);
+      // alert(response.data.message); // Notify user of success
       setFormData({
-        image: defaultImage,
+        file: "",
         name: "",
         phone: "",
         altNumber: "",
         email: "",
         address: "",
       });
+      setPreviewImage(null);
       setError("");
     } catch (err) {
       setError("Failed to save contact. Please try again.");
@@ -72,24 +84,29 @@ const Form = () => {
     <div>
       <Navbar />
       <div className="flex items-center justify-center h-full min-h-screen">
-        <div className="flex flex-col items-center sm:bg-[#2d2a2a] shadow-2xl w-full h-full min-h-screen">
+        <div className="flex flex-col items-center justify-center bg-slate-900 shadow-2xl w-full h-full min-h-screen">
           <form
             method="post"
             onSubmit={handleSubmit}
-            className="flex flex-col items-center gap-4 p-4 bg-[#171717] w-full min-h-screen "
+            className="flex flex-col items-center gap-4 bg-[#171717] w-full md:w-1/2"
           >
             <p className="text-center text-[#64ffda] text-xl">Add Contact</p>
 
             <div className="flex items-end">
-              {formData.image !== defaultImage && (
+              {previewImage  && (
                 <div>
-                  <label htmlFor="file-input" onClick={() => setFormData((prevData) => ({ ...prevData, image: defaultImage }))}>
+                  <label htmlFor="file-input" onClick={
+                    () => {
+                      setPreviewImage(null);
+                      setFormData((prevData) => ({ ...prevData, file: "" }));
+                    }
+                  }>
                     <i className="fas fa-x text-[#64ffda] cursor-pointer"></i>
                   </label>
                 </div>
               )}
               <img
-                src={formData.image}
+                src={previewImage ? previewImage : '/public/images/uploads/default.jpg'}
                 alt="Profile Preview"
                 style={{
                   width: "150px",
@@ -103,7 +120,8 @@ const Form = () => {
                   type="file"
                   capture="user"
                   accept="image/*"
-                  onChange={handleImageChange}
+                  name="file"
+                  onChange = {handleImageChange}
                 />
               </div>
             </div>

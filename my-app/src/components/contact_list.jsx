@@ -9,7 +9,7 @@ import { NavLink } from "react-router-dom";
 function ContactList({ contacts, setContacts }) {
   const deleteContact = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/user/contacts/${id}`,
+      await axios.delete(`/api/user/contacts/${id}`,
         {
           withCredentials: true, // Include cookies and credentials
         }
@@ -34,7 +34,7 @@ function ContactList({ contacts, setContacts }) {
   useEffect(() => {
     // Fetch data from the backend
     axios
-      .get("http://localhost:5000/api/user/contacts", {
+      .get("/api/user/contacts", {
         withCredentials: true, // Include cookies and credentials
       }) // Replace with your backend URL
       .then((response) => {
@@ -48,12 +48,12 @@ function ContactList({ contacts, setContacts }) {
   return (
     <div>
       <Navbar />
-      <div className="bg-zinc-900 flex flex-col items-center justify-center h-full min-h-screen">
-        <div className=" rounded-none sm:rounded-lg flex flex-col items-center gap-4 shadow-2xl w-full max-w-md">
+      <div className="bg-slate-900 flex flex-col border-red-300 items-center h-full min-h-screen">
+        <div className="flex flex-col items-center md:w-1/2 w-full p-4 gap-4 mt-20">
           <h1 className="text-teal-300 border-b-2 border-teal-50 p-1 w-full flex justify-center text-xl items-center mt-4 ">
             My Contact
           </h1>
-          <div className="flex flex-col  gap-4 bg-[#171717] rounded-2xl w-full justify-evenly">
+          <div className="flex flex-col gap-4  bg-slate-900 rounded-2xl w-full justify-evenly  ">
             {contacts.map((contact, index) => {
               return (
                 <div
@@ -65,7 +65,7 @@ function ContactList({ contacts, setContacts }) {
                     className="w-1/4"
                   >
                     <img
-                      src={contact.image}
+                       src={contact.image ? `/public/images/uploads/${contact.image}` : '/public/images/uploads/default.jpg'}
                       alt="img"
                       className="h-14 w-14 m-auto object-cover rounded-full"
                     />
