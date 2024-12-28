@@ -9,9 +9,12 @@ const bcrypt = require("bcrypt");
 
 const jwt = require("jsonwebtoken");
 
-const cookieParser = require("cookie-parser");
 const upload = require("../config/multerconfig");
+
+const cookieParser = require("cookie-parser");
 router.use(cookieParser());
+
+
 require("dotenv").config();
 const secretkey = process.env.SECRET_KEY;
 // console.log(secretkey);
@@ -56,7 +59,11 @@ router.post("/register", upload.single("file"), async (req, res) => {
         // console.log(savedUser);
         let token = jwt.sign({ email: email, userID: user._id }, secretkey);
         // console.log(token);
-        res.cookie("token", token);
+        res.cookie("token", token, {
+          httpOnly: true,
+          secure: false,
+        }
+        );
 
         res.json({
           status: "success",
@@ -104,7 +111,11 @@ router.post("/login", async (req, res) => {
 
     let token = jwt.sign({ email: email, userID: user._id }, secretkey);
     // console.log(token);
-    res.cookie("token", token);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+    }    
+    );
     const data = {
       status: "success",
       message: "Login successful",
@@ -148,7 +159,7 @@ router.get("/logout", (req, res) => {
 function authenticateToken(req, res, next) {
   // console.log(req.body);
   let token = req.cookies.token;
-  // console.log(token);
+  console.log(token);
 
   if (!token) return res.status(401).json({ error: "Access token missing" });
 
