@@ -80,7 +80,7 @@ export default function EditForm({contacts}) {
       console.log(response.data);
       // alert(response.data.message); // Notify user of success
       setError("");
-      window.location.href = "http://localhost:3000/mycontacts";
+      window.location.href = "/mycontacts";
 
     } catch (err) {
       setError("Failed to save contact. Please try again.");

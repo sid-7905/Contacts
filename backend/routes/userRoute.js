@@ -14,6 +14,7 @@ const upload = require("../config/multerconfig");
 router.use(cookieParser());
 require("dotenv").config();
 const secretkey = process.env.SECRET_KEY;
+console.log(secretkey);
 
 //get all users
 router.get("/", async (req, res) => {
@@ -28,7 +29,7 @@ router.get("/", async (req, res) => {
 //add a new user
 router.post("/register", upload.single("file"), async (req, res) => {
   // console.log(req.body);
-  const {name, email, phone, password } = req.body;
+  const { name, email, phone, password } = req.body;
 
   // Check if email already exists
   const existingUser = await UserModel.findOne({ email: email });
@@ -37,8 +38,7 @@ router.post("/register", upload.single("file"), async (req, res) => {
   }
 
   // Check if file was uploaded and use a fallback if not
-  const image = req.file ? req.file.filename : 'default.jpg';  // Default image if no file is uploaded
-  
+  const image = req.file ? req.file.filename : "default.jpg"; // Default image if no file is uploaded
 
   bcrypt.genSalt(10, (err, salt) => {
     bcrypt.hash(password, salt, async (err, hash) => {
@@ -53,10 +53,10 @@ router.post("/register", upload.single("file"), async (req, res) => {
 
       try {
         await user.save();
-        // console.log(savedUser);  
-        let token = jwt.sign({email: email, userID: user._id},secretkey);
-      // console.log(token);
-        res.cookie("token", token,);
+        // console.log(savedUser);
+        let token = jwt.sign({ email: email, userID: user._id }, secretkey);
+        // console.log(token);
+        res.cookie("token", token);
 
         res.json({
           status: "success",
@@ -75,23 +75,27 @@ router.post("/register", upload.single("file"), async (req, res) => {
   });
 });
 
-
 //login a user
 router.post("/login", async (req, res) => {
-
   let token = req.cookies.token;
   console.log(token);
 
-  if (token) return res.status(401).json({ message: 'You are already logined, kindly logout first' });
+  if (token)
+    return res
+      .status(401)
+      .json({ message: "You are already logined, kindly logout first" });
 
   const { email, password } = req.body;
 
   // Check if email exists
   const user = await UserModel.findOne({ email: email });
   if (!user) {
-    return res.status(400).json({ message: "Email does not exist, Kindly check email or register" });
+    return res
+      .status(400)
+      .json({
+        message: "Email does not exist, Kindly check email or register",
+      });
   }
-
 
   // Check if password is correct
   try {
@@ -116,22 +120,21 @@ router.post("/login", async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-}
-);
+});
 
 // Get user profile
-router.get('/profile', authenticateToken, (req, res) => {
+router.get("/profile", authenticateToken, (req, res) => {
   const { userID } = req.user;
   // console.log(userID);
   UserModel.findById(userID)
     .then((user) => {
       if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+        return res.status(404).json({ error: "User not found" });
       }
       res.json(user);
     })
     .catch((error) => {
-      res.status(500).json({ error: 'Failed to fetch user' });
+      res.status(500).json({ error: "Failed to fetch user" });
     });
 });
 
@@ -147,10 +150,10 @@ function authenticateToken(req, res, next) {
   let token = req.cookies.token;
   // console.log(token);
 
-  if (!token) return res.status(401).json({ error: 'Access token missing' });
+  if (!token) return res.status(401).json({ error: "Access token missing" });
 
   jwt.verify(token, secretkey, (err, data) => {
-    if (err) return res.status(403).json({ error: 'Invalid or expired token' });
+    if (err) return res.status(403).json({ error: "Invalid or expired token" });
     req.user = data; // Attach data to request
     // console.log(data);
     next();
@@ -158,8 +161,7 @@ function authenticateToken(req, res, next) {
 }
 
 // Get all contacts
-router.get("/contacts" ,authenticateToken,  async (req, res) => {
-
+router.get("/contacts", authenticateToken, async (req, res) => {
   const userid = req.user.userID;
   // console.log(userid);
   const contacts = await ContactModel.find({ user: userid });
@@ -173,55 +175,57 @@ router.get("/contacts" ,authenticateToken,  async (req, res) => {
   }
 });
 
-
-
 // Add a new contact
-router.post("/contacts", authenticateToken, upload.single("file"), async (req, res) => {
-  try {
-    // Extract data from request body
-    const { name, phone, altNumber, email, address } = req.body;
-    const userID = req.user.userID;
+router.post(
+  "/contacts",
+  authenticateToken,
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      // Extract data from request body
+      const { name, phone, altNumber, email, address } = req.body;
+      const userID = req.user.userID;
 
-    // Log the body and file for debugging
-    // console.log("Request Body:", req.body);
-    // console.log("Uploaded File:", req.file);
+      // Log the body and file for debugging
+      // console.log("Request Body:", req.body);
+      // console.log("Uploaded File:", req.file);
 
-    // Check if file was uploaded and use a fallback if not
-    const image = req.file ? req.file.filename : 'default.jpg';  // Default image if no file is uploaded
+      // Check if file was uploaded and use a fallback if not
+      const image = req.file ? req.file.filename : "default.jpg"; // Default image if no file is uploaded
 
-    // Create a new contact
-    const contact = new ContactModel({
-      image,
-      name,
-      phone,
-      altNumber,
-      email,
-      address,
-      user: userID,
-    });
+      // Create a new contact
+      const contact = new ContactModel({
+        image,
+        name,
+        phone,
+        altNumber,
+        email,
+        address,
+        user: userID,
+      });
 
-    // Retrieve the current user by ID
-    const currentUser = await UserModel.findById(userID);
-    if (!currentUser) {
-      return res.status(404).json({ message: "User not found" });
+      // Retrieve the current user by ID
+      const currentUser = await UserModel.findById(userID);
+      if (!currentUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Add the new contact to the user's contact list
+      currentUser.contacts.push(contact);
+      await currentUser.save();
+
+      // Save the contact to the database
+      const savedContact = await contact.save();
+
+      // Respond with the saved contact
+      res.status(201).json(savedContact);
+    } catch (err) {
+      // Log and respond with the error message
+      console.error("Error saving contact:", err.message);
+      res.status(400).json({ message: err.message });
     }
-
-    // Add the new contact to the user's contact list
-    currentUser.contacts.push(contact);
-    await currentUser.save();
-
-    // Save the contact to the database
-    const savedContact = await contact.save();
-
-    // Respond with the saved contact
-    res.status(201).json(savedContact);
-  } catch (err) {
-    // Log and respond with the error message
-    console.error("Error saving contact:", err.message);
-    res.status(400).json({ message: err.message });
   }
-});
-
+);
 
 router.delete("/contacts/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
@@ -241,20 +245,19 @@ router.delete("/contacts/:id", authenticateToken, async (req, res) => {
   res.status(200).json({ message: "Contact deleted successfully!" });
 });
 
- 
 // PUT API Route to update a contact
 router.put("/contacts/:id", upload.single("file"), async (req, res) => {
   try {
     const { id } = req.params;
-    const {file, name, phone, altNumber, email, address } = req.body;
+    const { file, name, phone, altNumber, email, address } = req.body;
 
     // Log the incoming data for debugging purposes
     // console.log("Request Body:", req.body);
     // console.log("Uploaded File:", req.file);
-    const {changeImage} = req.body;
+    const { changeImage } = req.body;
 
     // Check if a file is uploaded
-    const image = changeImage==="true" ? req.file.filename : file; // Default to 'default.jpg' if no file is uploaded
+    const image = changeImage === "true" ? req.file.filename : file; // Default to 'default.jpg' if no file is uploaded
 
     const updatedData = {
       image,
@@ -266,9 +269,13 @@ router.put("/contacts/:id", upload.single("file"), async (req, res) => {
     };
 
     // Update the contact in the database using the provided ID
-    const updatedContact = await ContactModel.findByIdAndUpdate(id, updatedData, {
-      new: true,
-    });
+    const updatedContact = await ContactModel.findByIdAndUpdate(
+      id,
+      updatedData,
+      {
+        new: true,
+      }
+    );
 
     // Check if the contact was found and updated
     if (!updatedContact) {
@@ -276,13 +283,14 @@ router.put("/contacts/:id", upload.single("file"), async (req, res) => {
     }
 
     // Respond with the updated contact data
-    res.status(200).json({ message: "Contact updated successfully!", updatedContact });
+    res
+      .status(200)
+      .json({ message: "Contact updated successfully!", updatedContact });
   } catch (error) {
     // Handle any errors that occur
     console.error("Error updating contact:", error);
     res.status(500).json({ error: "Failed to update contact" });
   }
 });
-
 
 module.exports = router;
