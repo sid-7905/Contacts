@@ -22,6 +22,7 @@ const Login = () => {
 
     try {
       console.log(formData);
+      console.log(backendUrl);
       const response = await axios.post(`${backendUrl}/api/user/login`, formData,{
         withCredentials: true, // Include cookies and credentials
       });
