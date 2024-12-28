@@ -56,7 +56,7 @@ router.post("/register", upload.single("file"), async (req, res) => {
         // console.log(savedUser);
         let token = jwt.sign({ email: email, userID: user._id }, secretkey);
         // console.log(token);
-        res.cookie("token", token,{ httpOnly: true, secure: true });
+        // res.cookie("token", token,{ httpOnly: true, secure: true });
 
         res.json({
           status: "success",
@@ -77,13 +77,13 @@ router.post("/register", upload.single("file"), async (req, res) => {
 
 //login a user
 router.post("/login", async (req, res) => {
-  let token = req.cookies.token;
-  console.log(token);
+  // let token = req.cookies.token;
+  // console.log(token);
 
-  if (token)
-    return res
-      .status(401)
-      .json({ message: "You are already logined, kindly logout first" });
+  // if (token)
+  //   return res
+  //     .status(401)
+  //     .json({ message: "You are already logined, kindly logout first" });
 
   const { email, password } = req.body;
 
@@ -104,7 +104,7 @@ router.post("/login", async (req, res) => {
 
     let token = jwt.sign({ email: email, userID: user._id }, secretkey);
     // console.log(token);
-    res.cookie("token", token,{ httpOnly: true, secure: true });
+    // res.cookie("token", token,{ httpOnly: true, secure: true });
     const data = {
       status: "success",
       message: "Login successful",
@@ -123,7 +123,7 @@ router.post("/login", async (req, res) => {
 });
 
 // Get user profile
-router.get("/profile", authenticateToken, (req, res) => {
+router.get("/profile", (req, res) => {
   const { userID } = req.user;
   // console.log(userID);
   UserModel.findById(userID)
@@ -144,24 +144,24 @@ router.get("/logout", (req, res) => {
   res.json({ message: "Logged out successfully" });
 });
 
-//middleware to authenticate token
-function authenticateToken(req, res, next) {
-  // console.log(req.body);
-  let token = req.cookies.token;
-  // console.log(token);
+// //middleware to authenticate token
+// function authenticateToken(req, res, next) {
+//   // console.log(req.body);
+//   let token = req.cookies.token;
+//   // console.log(token);
 
-  if (!token) return res.status(401).json({ error: "Access token missing" });
+//   if (!token) return res.status(401).json({ error: "Access token missing" });
 
-  jwt.verify(token, secretkey, (err, data) => {
-    if (err) return res.status(403).json({ error: "Invalid or expired token" });
-    req.user = data; // Attach data to request
-    // console.log(data);
-    next();
-  });
-}
+//   jwt.verify(token, secretkey, (err, data) => {
+//     if (err) return res.status(403).json({ error: "Invalid or expired token" });
+//     req.user = data; // Attach data to request
+//     // console.log(data);
+//     next();
+//   });
+// }
 
 // Get all contacts
-router.get("/contacts", authenticateToken, async (req, res) => {
+router.get("/contacts", async (req, res) => {
   const userid = req.user.userID;
   // console.log(userid);
   const contacts = await ContactModel.find({ user: userid });
@@ -178,7 +178,6 @@ router.get("/contacts", authenticateToken, async (req, res) => {
 // Add a new contact
 router.post(
   "/contacts",
-  authenticateToken,
   upload.single("file"),
   async (req, res) => {
     try {
@@ -227,7 +226,7 @@ router.post(
   }
 );
 
-router.delete("/contacts/:id", authenticateToken, async (req, res) => {
+router.delete("/contacts/:id", async (req, res) => {
   const { id } = req.params;
   const userID = req.user.userID;
 
