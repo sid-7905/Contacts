@@ -56,7 +56,7 @@ router.post("/register", upload.single("file"), async (req, res) => {
         // console.log(savedUser);
         let token = jwt.sign({ email: email, userID: user._id }, secretkey);
         // console.log(token);
-        res.cookie("token", token);
+        res.cookie("token", token,{ httpOnly: true, secure: true });
 
         res.json({
           status: "success",
@@ -104,7 +104,7 @@ router.post("/login", async (req, res) => {
 
     let token = jwt.sign({ email: email, userID: user._id }, secretkey);
     // console.log(token);
-    res.cookie("token", token);
+    res.cookie("token", token,{ httpOnly: true, secure: true });
     const data = {
       status: "success",
       message: "Login successful",
