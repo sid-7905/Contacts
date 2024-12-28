@@ -44,6 +44,13 @@ const Form = () => {
       return;
     }
 
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please login to add a contact");
+      return;
+    }
+
     try {
 
       const formdata = new FormData();
@@ -55,11 +62,14 @@ const Form = () => {
       formdata.append("address", formData.address);
       
 
-      console.log(formData);
+      // console.log(formData);
       const response = await axios.post(
         `${backendUrl}/api/user/contacts`,
         formdata,
         {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
           withCredentials: true, // Include cookies and credentials
         }
       );

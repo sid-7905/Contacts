@@ -46,6 +46,12 @@ const SignUp = () => {
       return;
     }
 
+    const token = localStorage.getItem("token");
+    if (token) {
+      setError("You are already logged in. Kindly logout first.");
+      return;
+    }
+
     const formdata = new FormData();
       formdata.append("file", formData.file);
       formdata.append("name", formData.name);

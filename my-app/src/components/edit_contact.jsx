@@ -54,25 +54,29 @@ export default function EditForm({contacts}) {
 
       const formdata = new FormData();
       formdata.append("changeImage", (formData.file !== contact.image) && (formData.file !== "default.jpg"));
-      console.log(formdata.get("changeImage"));
-      // if (formData.file instanceof File) {
-        // Append the file only if it's an actual file
-        formdata.append("file", formData.file);
-      // }
+      
+      formdata.append("file", formData.file);
       formdata.append("name", formData.name);
       formdata.append("phone", formData.phone);
       formdata.append("altNumber", formData.altNumber);
       formdata.append("email", formData.email);
       formdata.append("address", formData.address);
       
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please login to add a contact");
+        return;
+      }
 
-      console.log(formData);
+
+      // console.log(formData);
       const response = await axios.put(
        `${backendUrl}/api/user/contacts/${id}`,
         formdata,
         {
           withCredentials: true, // Include cookies and credentials
           headers: {
+            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -102,7 +106,7 @@ export default function EditForm({contacts}) {
               {previewImage!==`/public/images/uploads/default.jpg`  && (
                 <div>
                   <label htmlFor="file-input" onClick={() => {
-                    setPreviewImage(`/public/images/uploads/default.jpg`);
+                    setPreviewImage(`${backendUrl}/images/uploads/default.jpg`);
                     setFormData((prevData) => ({ ...prevData, file: "default.jpg" }));
                   }}>
                     <i className="fas fa-x text-[#64ffda] cursor-pointer"></i>

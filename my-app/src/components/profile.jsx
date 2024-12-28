@@ -9,9 +9,14 @@ const Profile = () => {
 
   useEffect(() => {
     // Fetch data from the backend
+    const token = localStorage.getItem("token");
+    console.log(token);
     axios
       .get(`${backendUrl}/api/user/profile`, {
-        withCredentials: true, // Include cookies and credentials
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      withCredentials: true, // Include cookies and credentials
       }) // Replace with your backend URL
       .then((response) => {
         // console.log(response.data);

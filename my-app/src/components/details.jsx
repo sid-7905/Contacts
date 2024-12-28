@@ -1,5 +1,5 @@
 import { Dialog } from '@headlessui/react';
-// import { useState } from 'react';
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 export default function Details({ contact, open, setOpen}) {
 
@@ -8,7 +8,7 @@ export default function Details({ contact, open, setOpen}) {
       <div className="fixed inset-0 bg-black bg-opacity-50  backdrop-blur-sm flex items-center justify-center p-4">
         <Dialog.Panel className="bg-zinc-900 rounded-lg p-6 flex flex-col gap-3 border border-cyan-400 w-96">
           <img
-            src={contact.image ? `/public/images/uploads/${contact.image}` : '/public/images/uploads/default.jpg'}
+            src={contact.image ? `${backendUrl}/images/uploads/${contact.image}` : `${backendUrl}/images/uploads/default.jpg`}
             alt="Contact"
             className="w-24 h-24 object-cover rounded-full mx-auto"
           />

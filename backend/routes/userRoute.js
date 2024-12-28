@@ -56,14 +56,7 @@ router.post("/register", upload.single("file"), async (req, res) => {
 
       try {
         await user.save();
-        // console.log(savedUser);
         let token = jwt.sign({ email: email, userID: user._id }, secretkey);
-        // console.log(token);
-        res.cookie("token", token, {
-          httpOnly: true,
-          secure: false,
-        }
-        );
 
         res.json({
           status: "success",
@@ -84,16 +77,9 @@ router.post("/register", upload.single("file"), async (req, res) => {
 
 //login a user
 router.post("/login", async (req, res) => {
-  let token = req.cookies.token;
-  console.log(token);
-
-  if (token)
-    return res
-      .status(401)
-      .json({ message: "You are already logined, kindly logout first" });
 
   const { email, password } = req.body;
-
+  console.log(email + " " + password);
   // Check if email exists
   const user = await UserModel.findOne({ email: email });
   if (!user) {
@@ -110,12 +96,6 @@ router.post("/login", async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: "Invalid Password" });
 
     let token = jwt.sign({ email: email, userID: user._id }, secretkey);
-    // console.log(token);
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-    }    
-    );
     const data = {
       status: "success",
       message: "Login successful",
@@ -126,7 +106,6 @@ router.post("/login", async (req, res) => {
         email: user.email,
       },
     };
-    // console.log(data);
     res.json(data);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -134,9 +113,18 @@ router.post("/login", async (req, res) => {
 });
 
 // Get user profile
-router.get("/profile", authenticateToken, (req, res) => {
+router.get("/profile", (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ error: "Access token missing" });
+  }
+
+  jwt.verify(token, secretkey, (err, data) => {
+    if (err) return res.status(403).json({ error: "Invalid or expired token" });
+    req.user = data; // Attach data to request
+  });
+
   const { userID } = req.user;
-  // console.log(userID);
   UserModel.findById(userID)
     .then((user) => {
       if (!user) {
@@ -151,35 +139,26 @@ router.get("/profile", authenticateToken, (req, res) => {
 
 // logout a user
 router.get("/logout", (req, res) => {
-  res.cookie("token", "");
   res.json({ message: "Logged out successfully" });
 });
 
-//middleware to authenticate token
-function authenticateToken(req, res, next) {
-  // console.log(req.body);
-  let token = req.cookies.token;
-  console.log(token);
-
-  if (!token) return res.status(401).json({ error: "Access token missing" });
+// Get all contacts
+router.get("/contacts", async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ error: "Access token missing" });
+  }
 
   jwt.verify(token, secretkey, (err, data) => {
     if (err) return res.status(403).json({ error: "Invalid or expired token" });
     req.user = data; // Attach data to request
-    // console.log(data);
-    next();
   });
-}
 
-// Get all contacts
-router.get("/contacts", authenticateToken, async (req, res) => {
-  const userid = req.user.userID;
-  // console.log(userid);
-  const contacts = await ContactModel.find({ user: userid });
-  // console.log(contacts);
+  const { userID } = req.user;
+  
+  const contacts = await ContactModel.find({ user: userID });
 
   try {
-    // const contacts = await ContactModel.find();
     res.json(contacts);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -189,9 +168,20 @@ router.get("/contacts", authenticateToken, async (req, res) => {
 // Add a new contact
 router.post(
   "/contacts",
-  authenticateToken,
   upload.single("file"),
   async (req, res) => {
+
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: "Access token missing" });
+    }
+  
+    jwt.verify(token, secretkey, (err, data) => {
+      if (err) return res.status(403).json({ error: "Invalid or expired token" });
+      req.user = data; // Attach data to request
+    });
+    
+
     try {
       // Extract data from request body
       const { name, phone, altNumber, email, address } = req.body;
@@ -238,11 +228,22 @@ router.post(
   }
 );
 
-router.delete("/contacts/:id", authenticateToken, async (req, res) => {
+router.delete("/contacts/:id", async (req, res) => {
   const { id } = req.params;
-  const userID = req.user.userID;
 
   const contact = await ContactModel.findByIdAndDelete(id);
+
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ error: "Access token missing" });
+  }
+
+  jwt.verify(token, secretkey, (err, data) => {
+    if (err) return res.status(403).json({ error: "Invalid or expired token" });
+    req.user = data; // Attach data to request
+  });
+
+  const { userID } = req.user.userID;
 
   if (!contact) {
     return res.status(404).json({ error: "Contact not found" });
@@ -258,6 +259,19 @@ router.delete("/contacts/:id", authenticateToken, async (req, res) => {
 
 // PUT API Route to update a contact
 router.put("/contacts/:id", upload.single("file"), async (req, res) => {
+
+
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ error: "Access token missing" });
+  }
+
+  jwt.verify(token, secretkey, (err, data) => {
+    if (err) return res.status(403).json({ error: "Invalid or expired token" });
+    req.user = data; // Attach data to request
+  });
+  
+
   try {
     const { id } = req.params;
     const { file, name, phone, altNumber, email, address } = req.body;

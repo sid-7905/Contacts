@@ -9,9 +9,19 @@ const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 function ContactList({ contacts, setContacts }) {
   const deleteContact = async (id) => {
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login to delete a contact");
+      return;
+    }
+
     try {
       await axios.delete(`${backendUrl}/api/user/contacts/${id}`,
         {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           withCredentials: true, // Include cookies and credentials
         }
       );
@@ -33,9 +43,20 @@ function ContactList({ contacts, setContacts }) {
   };
 
   useEffect(() => {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please login to view contacts");
+      return;
+    }
+
     // Fetch data from the backend
     axios
       .get(`${backendUrl}/api/user/contacts`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
         withCredentials: true, // Include cookies and credentials
       }) // Replace with your backend URL
       .then((response) => {

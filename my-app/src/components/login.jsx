@@ -20,6 +20,12 @@ const Login = () => {
       return;
     }
 
+    const token = localStorage.getItem("token");
+    if (token) {
+      setError("You are already logged in. Kindly logout first.");
+      return;
+    }
+
     try {
       console.log(formData);
       console.log(backendUrl);
