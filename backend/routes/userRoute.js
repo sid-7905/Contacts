@@ -12,6 +12,8 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const upload = require("../config/multerconfig");
 router.use(cookieParser());
+require("dotenv").config();
+const secretkey = process.env.SECRET_KEY;
 
 //get all users
 router.get("/", async (req, res) => {
@@ -33,13 +35,16 @@ router.post("/register", upload.single("file"), async (req, res) => {
   if (existingUser) {
     return res.status(400).json({ message: "User already exists" });
   }
+
+  // Check if file was uploaded and use a fallback if not
+  const image = req.file ? req.file.filename : 'default.jpg';  // Default image if no file is uploaded
   
 
   bcrypt.genSalt(10, (err, salt) => {
     bcrypt.hash(password, salt, async (err, hash) => {
       if (err) throw err;
       const user = new UserModel({
-        image: req.file.filename,
+        image: image,
         name,
         email,
         phone,
@@ -49,7 +54,7 @@ router.post("/register", upload.single("file"), async (req, res) => {
       try {
         await user.save();
         // console.log(savedUser);  
-        let token = jwt.sign({email: email, userID: user._id}, "secretkey");
+        let token = jwt.sign({email: email, userID: user._id},secretkey);
       // console.log(token);
         res.cookie("token", token,);
 
@@ -75,7 +80,7 @@ router.post("/register", upload.single("file"), async (req, res) => {
 router.post("/login", async (req, res) => {
 
   let token = req.cookies.token;
-  // console.log(token);
+  console.log(token);
 
   if (token) return res.status(401).json({ message: 'You are already logined, kindly logout first' });
 
@@ -93,7 +98,7 @@ router.post("/login", async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid Password" });
 
-    let token = jwt.sign({ email: email, userID: user._id }, "secretkey");
+    let token = jwt.sign({ email: email, userID: user._id }, secretkey);
     // console.log(token);
     res.cookie("token", token);
     const data = {
@@ -144,7 +149,7 @@ function authenticateToken(req, res, next) {
 
   if (!token) return res.status(401).json({ error: 'Access token missing' });
 
-  jwt.verify(token, "secretkey", (err, data) => {
+  jwt.verify(token, secretkey, (err, data) => {
     if (err) return res.status(403).json({ error: 'Invalid or expired token' });
     req.user = data; // Attach data to request
     // console.log(data);
@@ -241,14 +246,15 @@ router.delete("/contacts/:id", authenticateToken, async (req, res) => {
 router.put("/contacts/:id", upload.single("file"), async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, phone, altNumber, email, address } = req.body;
+    const {file, name, phone, altNumber, email, address } = req.body;
 
     // Log the incoming data for debugging purposes
     // console.log("Request Body:", req.body);
     // console.log("Uploaded File:", req.file);
+    const {changeImage} = req.body;
 
     // Check if a file is uploaded
-    const image = req.file ? req.file.filename : 'default.jpg'; // Default to 'default.jpg' if no file is uploaded
+    const image = changeImage==="true" ? req.file.filename : file; // Default to 'default.jpg' if no file is uploaded
 
     const updatedData = {
       image,

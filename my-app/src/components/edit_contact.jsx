@@ -52,10 +52,12 @@ export default function EditForm({contacts}) {
     try {
 
       const formdata = new FormData();
-      if (formData.file instanceof File) {
+      formdata.append("changeImage", (formData.file !== contact.image) && (formData.file !== "default.jpg"));
+      console.log(formdata.get("changeImage"));
+      // if (formData.file instanceof File) {
         // Append the file only if it's an actual file
         formdata.append("file", formData.file);
-      }
+      // }
       formdata.append("name", formData.name);
       formdata.append("phone", formData.phone);
       formdata.append("altNumber", formData.altNumber);
@@ -78,7 +80,7 @@ export default function EditForm({contacts}) {
       console.log(response.data);
       // alert(response.data.message); // Notify user of success
       setError("");
-      window.location.href = "/mycontacts";
+      window.location.href = "http://localhost:3000/mycontacts";
 
     } catch (err) {
       setError("Failed to save contact. Please try again.");

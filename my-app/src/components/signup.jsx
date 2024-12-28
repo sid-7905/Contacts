@@ -72,7 +72,7 @@ const SignUp = () => {
       
       setPreviewImage(null);
       setError("");
-      window.location.replace("/mycontacts");
+      window.location.replace("http://localhost:3000/mycontacts");
     } catch (err) {
       console.log(err.response);
       setError(err.response.data.message); 

@@ -5,8 +5,8 @@ export default function Details({ contact, open, setOpen}) {
 
   return (
     <Dialog open={open} onClose={() => setOpen(false)} className="bg-zinc-900 relative z-1">
-      <div className="fixed inset-0 bg-black bg-opacity-50  backdrop-blur-sm flex items-center justify-center p-4 w-full">
-        <Dialog.Panel className="bg-zinc-900 rounded-lg p-6 flex flex-col gap-3">
+      <div className="fixed inset-0 bg-black bg-opacity-50  backdrop-blur-sm flex items-center justify-center p-4">
+        <Dialog.Panel className="bg-zinc-900 rounded-lg p-6 flex flex-col gap-3 border border-cyan-400 w-96">
           <img
             src={contact.image ? `/public/images/uploads/${contact.image}` : '/public/images/uploads/default.jpg'}
             alt="Contact"
