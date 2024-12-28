@@ -14,7 +14,7 @@ const upload = require("../config/multerconfig");
 router.use(cookieParser());
 require("dotenv").config();
 const secretkey = process.env.SECRET_KEY;
-console.log(secretkey);
+// console.log(secretkey);
 
 //get all users
 router.get("/", async (req, res) => {
