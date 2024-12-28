@@ -14,6 +14,8 @@ function checkLogin() {
   return localStorage.getItem("token") ? true : false;
 }
 
+console.log(checkLogin());
+
 function App() {
   const [contacts, setContacts] = useState([]);
 

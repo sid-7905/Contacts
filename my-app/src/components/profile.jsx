@@ -2,6 +2,7 @@ import React from "react";
 import Navbar from "./navbar";
 import { useState, useEffect } from "react";
 import axios from "axios";
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 const Profile = () => {
   const [userData, setUserData] = useState({});
@@ -9,7 +10,7 @@ const Profile = () => {
   useEffect(() => {
     // Fetch data from the backend
     axios
-      .get("https://contact-manager-77sq.onrender.com/api/user/profile", {
+      .get(`${backendUrl}/api/user/profile`, {
         withCredentials: true, // Include cookies and credentials
       }) // Replace with your backend URL
       .then((response) => {
@@ -27,7 +28,7 @@ const Profile = () => {
       <div className="flex items-center justify-center h-full min-h-screen bg-slate-900">
         <div className="p-8 rounded-lg gap-4 flex flex-col items-center bg-[#2d2a2a] shadow-2xl justify-center h-full">
           <img
-            src={userData.image ? `/public/images/uploads/${userData.image}` : '/public/images/uploads/default.jpg'}
+            src={userData.image ? `${backendUrl}/images/uploads/${userData.image}` : `${backendUrl}/images/uploads/default.jpg`}
             alt="Contact"
             className="w-24 h-24 object-cover rounded-full mx-auto"
           />

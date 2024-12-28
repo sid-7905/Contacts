@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 const Login = () => {
 
@@ -21,7 +22,7 @@ const Login = () => {
 
     try {
       console.log(formData);
-      const response = await axios.post("https://contact-manager-77sq.onrender.com/api/user/login", formData,{
+      const response = await axios.post(`${backendUrl}/api/user/login`, formData,{
         withCredentials: true, // Include cookies and credentials
       });
       console.log(response.data.token);

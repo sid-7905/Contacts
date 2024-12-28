@@ -6,10 +6,13 @@ import {
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
+console.log(backendUrl);
 
 const handleLogout = async () => {
+  console.log("Logging out...");
   try {
-    await axios.get("https://contact-manager-77sq.onrender.com/api/user/logout", {
+    await axios.get(`${backendUrl}/api/user/logout`, {
       withCredentials: true, // Include cookies and credentials
     });
     localStorage.removeItem("token");

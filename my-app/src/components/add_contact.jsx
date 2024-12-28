@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Navbar from "./navbar";
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 const Form = () => {
   const [formData, setFormData] = useState({
@@ -56,7 +57,7 @@ const Form = () => {
 
       console.log(formData);
       const response = await axios.post(
-        "https://contact-manager-77sq.onrender.com/api/user/contacts",
+        `${backendUrl}/api/user/contacts`,
         formdata,
         {
           withCredentials: true, // Include cookies and credentials
@@ -106,7 +107,7 @@ const Form = () => {
                 </div>
               )}
               <img
-                src={previewImage ? previewImage : '/public/images/uploads/default.jpg'}
+                src={previewImage ? previewImage : `${backendUrl}/images/uploads/default.jpg`}
                 alt="Profile Preview"
                 style={{
                   width: "150px",

@@ -4,11 +4,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Navbar from "./navbar";
 import { NavLink } from "react-router-dom";
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
 
 function ContactList({ contacts, setContacts }) {
   const deleteContact = async (id) => {
     try {
-      await axios.delete(`https://contact-manager-77sq.onrender.com/api/user/contacts/${id}`,
+      await axios.delete(`${backendUrl}/api/user/contacts/${id}`,
         {
           withCredentials: true, // Include cookies and credentials
         }
@@ -33,7 +35,7 @@ function ContactList({ contacts, setContacts }) {
   useEffect(() => {
     // Fetch data from the backend
     axios
-      .get("https://contact-manager-77sq.onrender.com/api/user/contacts", {
+      .get(`${backendUrl}/api/user/contacts`, {
         withCredentials: true, // Include cookies and credentials
       }) // Replace with your backend URL
       .then((response) => {
@@ -64,7 +66,7 @@ function ContactList({ contacts, setContacts }) {
                     className="w-1/4"
                   >
                     <img
-                       src={contact.image ? `/public/images/uploads/${contact.image}` : '/public/images/uploads/default.jpg'}
+                       src={contact.image ? `${backendUrl}/images/uploads/${contact.image}` : `${backendUrl}/images/uploads/default.jpg`}
                       alt="img"
                       className="h-14 w-14 m-auto object-cover rounded-full"
                     />

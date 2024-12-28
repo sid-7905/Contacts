@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 const SignUp = () => {
 
@@ -55,7 +56,7 @@ const SignUp = () => {
 
     try {
       console.log(formData);  
-      const response = await axios.post("https://contact-manager-77sq.onrender.com/api/user/register", formdata,{
+      const response = await axios.post(`${backendUrl}/api/user/register`, formdata,{
         withCredentials: true, // Include cookies and credentials
       });
       localStorage.setItem("token", response.data.token);
@@ -112,7 +113,7 @@ const SignUp = () => {
                 </div>
               )}
               <img
-                src={previewImage ? previewImage : '/public/images/uploads/default.jpg'}
+                src={previewImage ? previewImage : `${backendUrl}/images/uploads/default.jpg`}
                 alt="Profile Preview"
                 style={{
                   width: "150px",

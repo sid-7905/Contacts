@@ -14,7 +14,7 @@ console.log(Frontend_URL);
 // Middleware
 app.use(
   cors({
-    origin: Frontend_URL , // Frontend URL
+    origin: Frontend_URL, // Frontend URL
     credentials: true, // Allow cookies and credentials
   })
 );
@@ -27,7 +27,7 @@ mongoose
   .catch((err) => console.error("Error connecting to MongoDB:", err));
 
 // Serve static files
-app.use("/public", express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
 app.get("/", (req, res) => res.send("Server is running!"));
@@ -36,4 +36,4 @@ app.get("/", (req, res) => res.send("Server is running!"));
 const UserRoute = require("./routes/userRoute");
 app.use("/api/user", UserRoute);
 
-app.listen( PORT || 5000, () => console.log("Server is running on port 5000"));
+app.listen( PORT, () => console.log("Server is running on port 5000"));
