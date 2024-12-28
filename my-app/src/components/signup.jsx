@@ -55,7 +55,7 @@ const SignUp = () => {
 
     try {
       console.log(formData);  
-      const response = await axios.post("/api/user/register", formdata,{
+      const response = await axios.post("https://contact-manager-77sq.onrender.com/api/user/register", formdata,{
         withCredentials: true, // Include cookies and credentials
       });
       localStorage.setItem("token", response.data.token);

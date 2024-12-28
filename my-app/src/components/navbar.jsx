@@ -9,7 +9,7 @@ import axios from "axios";
 
 const handleLogout = async () => {
   try {
-    await axios.get("/api/user/logout", {
+    await axios.get("https://contact-manager-77sq.onrender.com/api/user/logout", {
       withCredentials: true, // Include cookies and credentials
     });
     localStorage.removeItem("token");

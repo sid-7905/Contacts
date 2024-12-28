@@ -9,7 +9,7 @@ const Profile = () => {
   useEffect(() => {
     // Fetch data from the backend
     axios
-      .get("/api/user/profile", {
+      .get("https://contact-manager-77sq.onrender.com/api/user/profile", {
         withCredentials: true, // Include cookies and credentials
       }) // Replace with your backend URL
       .then((response) => {

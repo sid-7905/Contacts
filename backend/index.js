@@ -7,9 +7,10 @@ const path = require("path");
 require("dotenv").config();
 
 const uri = process.env.MONGODB_URI;
-const PORT = process.env.Port || 5000;
+const PORT = process.env.PORT || 5000;
 const Frontend_URL = process.env.FRONTEND_URL;
 
+console.log(Frontend_URL);
 // Middleware
 app.use(
   cors({

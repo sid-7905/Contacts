@@ -1,6 +1,5 @@
 import React from "react";
 import Details from "./details";
-import Edit_contact from "./edit_contact";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Navbar from "./navbar";
@@ -9,7 +8,7 @@ import { NavLink } from "react-router-dom";
 function ContactList({ contacts, setContacts }) {
   const deleteContact = async (id) => {
     try {
-      await axios.delete(`/api/user/contacts/${id}`,
+      await axios.delete(`https://contact-manager-77sq.onrender.com/api/user/contacts/${id}`,
         {
           withCredentials: true, // Include cookies and credentials
         }
@@ -34,7 +33,7 @@ function ContactList({ contacts, setContacts }) {
   useEffect(() => {
     // Fetch data from the backend
     axios
-      .get("/api/user/contacts", {
+      .get("https://contact-manager-77sq.onrender.com/api/user/contacts", {
         withCredentials: true, // Include cookies and credentials
       }) // Replace with your backend URL
       .then((response) => {

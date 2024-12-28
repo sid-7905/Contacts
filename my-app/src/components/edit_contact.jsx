@@ -9,7 +9,7 @@ export default function EditForm({contacts}) {
   const contact = contacts.find((c) => c._id === id);
   // console.log(contact);
 
-  const [previewImage, setPreviewImage] = useState(`/public/images/uploads/${contact.image}`);
+  const [previewImage, setPreviewImage] = useState(`https://contact-manager-77sq.onrender.com/public/images/uploads/${contact.image}`);
 
   const [formData, setFormData] = useState({
     file: contact.image,
@@ -67,7 +67,7 @@ export default function EditForm({contacts}) {
 
       console.log(formData);
       const response = await axios.put(
-       `/api/user/contacts/${id}`,
+       `https://contact-manager-77sq.onrender.com/api/user/contacts/${id}`,
         formdata,
         {
           withCredentials: true, // Include cookies and credentials

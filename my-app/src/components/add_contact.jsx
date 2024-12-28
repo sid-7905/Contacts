@@ -56,7 +56,7 @@ const Form = () => {
 
       console.log(formData);
       const response = await axios.post(
-        "/api/user/contacts",
+        "https://contact-manager-77sq.onrender.com/api/user/contacts",
         formdata,
         {
           withCredentials: true, // Include cookies and credentials
