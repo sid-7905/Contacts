@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'https://contact-list-frontend.herokuapp'],
+    origin: ['http://localhost:3000', 'https://contacts-beige-seven.vercel.app'],
     methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
     credentials: true, // Allow cookies and credentials
   })
