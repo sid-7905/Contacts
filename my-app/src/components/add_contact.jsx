@@ -163,7 +163,7 @@ const Form = () => {
             <div className="flex items-center justify-center gap-2 p-4 bg-[#1b1b1b] rounded-xl shadow-inner w-full max-w-md">
               <i className="fas fa-phone text-[#64ffda]"></i>
               <input
-                placeholder="Aternate Number"
+                placeholder="Alternate Number"
                 className="bg-transparent border-none outline-none w-full text-[#ccd6f6] pl-4"
                 type="number"
                 name="altNumber"

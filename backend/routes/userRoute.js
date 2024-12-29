@@ -137,10 +137,10 @@ router.get("/profile", (req, res) => {
     });
 });
 
-// logout a user
-router.get("/logout", (req, res) => {
-  res.json({ message: "Logged out successfully" });
-});
+// // logout a user
+// router.get("/logout", (req, res) => {
+//   res.json({ message: "Logged out successfully" });
+// });
 
 // Get all contacts
 router.get("/contacts", async (req, res) => {

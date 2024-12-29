@@ -10,7 +10,6 @@ const Profile = () => {
   useEffect(() => {
     // Fetch data from the backend
     const token = localStorage.getItem("token");
-    console.log(token);
     axios
       .get(`${backendUrl}/api/user/profile`, {
       headers: {
